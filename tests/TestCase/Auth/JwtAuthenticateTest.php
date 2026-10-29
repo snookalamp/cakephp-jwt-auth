@@ -35,7 +35,7 @@ class JwtAuthenticateTest extends TestCase
     {
         parent::setUp();
 
-        Security::setSalt('secret-key');
+        Security::setSalt('should-be-larger-than-32-chars-l483gIHl09gALzSGP0E5M295WY8oaUPy1MXAg3s');
 
         $this->Registry = new ComponentRegistry();
         $this->auth = new JwtAuthenticate($this->Registry, [
@@ -43,7 +43,7 @@ class JwtAuthenticateTest extends TestCase
         ]);
         $this->Registry->Auth = $this->auth;
 
-        $this->token = JWT::encode(['sub' => 1], Security::getSalt());
+        $this->token = JWT::encode(['sub' => 1], Security::getSalt(), 'HS256');
 
         $this->response = $this->getMockBuilder(Response::class)
             ->getMock();
@@ -164,7 +164,7 @@ class JwtAuthenticateTest extends TestCase
                 'username' => 'ADmad',
                 'group' => ['name' => 'admin'],
         ];
-        $token = JWT::encode($expected, Security::getSalt());
+        $token = JWT::encode($expected, Security::getSalt(), 'HS256');
         $this->auth->setConfig('queryDatasource', false);
 
         $request = new ServerRequest();
@@ -184,7 +184,7 @@ class JwtAuthenticateTest extends TestCase
      */
     public function testWithValidTokenButNoUserInDb()
     {
-        $token = JWT::encode(['id' => 4], Security::getSalt());
+        $token = JWT::encode(['id' => 4], Security::getSalt(), 'HS256');
 
         $request = new ServerRequest();
         $request = $request->withEnv('HTTP_AUTHORIZATION', 'Bearer ' . $token);
@@ -270,14 +270,14 @@ class JwtAuthenticateTest extends TestCase
      */
     public function testCustomKey()
     {
-        $key = 'my-custom-key';
+        $key = 'my-custom-key-should-be-larger-than-32-chars-3gIHl09gALzSGP0E5M295WY8oaUPy1MXAg3s';
         $auth = new JwtAuthenticate($this->Registry, [
             'key' => $key,
             'queryDatasource' => false,
         ]);
 
         $payload = ['sub' => 100];
-        $token = JWT::encode($payload, $key);
+        $token = JWT::encode($payload, $key, 'HS256');
 
         $request = new ServerRequest();
         $request = $request->withEnv('HTTP_AUTHORIZATION', 'Bearer ' . $token);
